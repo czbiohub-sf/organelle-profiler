@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "organelle_profiler"
+version = "0.1.0"
+description = "Organelle segmentation, geometric feature extraction, and clustering"
+readme = "README.md"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">=3.12,<3.13"
+authors = [
+    { name = "Gav Sturm", email = "gav.sturm@czbiohub.org" },
+    { name = "Alex Hillsley", email = "alexander.hillsley@czbiohub.org" },
+    { name = "Mark Potts", email = "mark.potts@czbiohub.org" },
+]
+dependencies = [
+    # Sibling workspace package, imported at module top level across
+    # feature_extraction/ and organelle_seg/. Previously undeclared and supplied
+    # by the monorepo root; resolved via [tool.uv.sources] in the
+    # cyclops-monorepo root. cyclops_process is deliberately NOT declared: the
+    # two packages import each other lazily (inside functions), so declaring it
+    # would introduce a dependency cycle in the workspace metadata.
+    "cyclops_utils",
+    "numpy",
+    "pandas",
+    "zarr",
+    "iohub>=0.3.0a7",
+    "pyyaml",
+    "tqdm",
+    "joblib",
+    "click",
+    "scipy",
+    "scikit-image",
+    "scikit-learn",
+    "matplotlib",
+    "seaborn",
+    "anndata",
+    "scanpy",
+    "tensorstore",
+    "tifffile",
+    "pyarrow",
+    "submitit",
+    "dask",
+    "statsmodels",
+    "copairs",
+    "skan",
+    "lightgbm",
+    "shap",
+]
+
+[project.optional-dependencies]
+interactive = [
+    "plotly",
+    "dash",
+    "umap-learn",
+    "hdbscan",
+    "leidenalg",
+]
+rapids = [
+    "cucim-cu12>=25.6",
+    "cuml-cu12>=25.6",
+    "maayanlab-bioinformatics",
+]
+all = [
+    "organelle_profiler[interactive,rapids]",
+]
+
+# Hatch config
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+only-include = ["src"]
+sources = ["src"]
+
+# Pytest config. Scope collection to the real test suite so pytest doesn't
+# auto-collect the `test_*`-named dev/scratch scripts under src/**/extra/
+# (they aren't pytest tests; one has a syntax error and breaks bare collection).
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["*/extra", "src"]
